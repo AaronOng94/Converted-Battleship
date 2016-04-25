@@ -19,6 +19,7 @@ public enum Direction
 	/// The ship is oriented up/down
 	/// </summary>
 	UpDown
+
 }
 
 //=======================================================
