@@ -85,6 +85,7 @@ static class MenuController
 
 	private const int GAME_MENU_QUIT_BUTTON = 4;
 	private static bool isMute = false;
+	private static int bgmPlaying = 1;
 	private static readonly Color MENU_COLOR = SwinGame.RGBAColor(2, 167, 252, 255);
 
 	private static readonly Color HIGHLIGHT_COLOR = SwinGame.RGBAColor(1, 57, 86, 255);
@@ -128,7 +129,7 @@ static class MenuController
 	{
 		HandleMenuInput(GAME_MENU, 0, 0);
 	}
-		
+
 	/// <summary>
 	/// Handles input for the specified menu.
 	/// </summary>
@@ -235,12 +236,14 @@ static class MenuController
 
 		btnTop = MENU_TOP - (MENU_GAP + BUTTON_HEIGHT) * level;
 		int i = 0;
+		string s = "UNMUTE";
 		for (i = 0; i <= _menuStructure[menu].Length - 1; i++) {
 			int btnLeft = 0;
 			btnLeft = MENU_LEFT + BUTTON_SEP * (i + xOffset);
 			//SwinGame.FillRectangle(Color.White, btnLeft, btnTop, BUTTON_WIDTH, BUTTON_HEIGHT)
 			SwinGame.DrawTextLines(_menuStructure[menu][i], MENU_COLOR, Color.Black, GameResources.GameFont("Menu"), FontAlignment.AlignCenter, btnLeft + TEXT_OFFSET, btnTop + TEXT_OFFSET, BUTTON_WIDTH, BUTTON_HEIGHT);
-
+			if (_menuStructure[menu][i] == "MUTE" && isMute	== true)
+				SwinGame.DrawTextLines (s, Color.Red, Color.Black, GameResources.GameFont ("Menu"), FontAlignment.AlignCenter, btnLeft + TEXT_OFFSET, btnTop + TEXT_OFFSET, BUTTON_WIDTH, BUTTON_HEIGHT);
 			if (SwinGame.MouseDown(MouseButton.LeftButton) & IsMouseOverMenu(i, level, xOffset)) {
 				SwinGame.DrawRectangle(HIGHLIGHT_COLOR, btnLeft, btnTop, BUTTON_WIDTH, BUTTON_HEIGHT);
 			}
@@ -280,18 +283,18 @@ static class MenuController
 	private static void PerformMenuAction(int menu, int button)
 	{
 		switch (menu) {
-			case MAIN_MENU:
-				PerformMainMenuAction(button);
-				break;
-			case SETUP_MENU:
-				PerformSetupMenuAction(button);
-				break;
-			case GAME_MENU:
-				PerformGameMenuAction(button);
-				break;
-			case BGM_MENU:
-				PerformBGMMenuAction (button);
-				break;	
+		case MAIN_MENU:
+			PerformMainMenuAction(button);
+			break;
+		case SETUP_MENU:
+			PerformSetupMenuAction(button);
+			break;
+		case GAME_MENU:
+			PerformGameMenuAction(button);
+			break;
+		case BGM_MENU:
+			PerformBGMMenuAction (button);
+			break;	
 		}
 	}
 
@@ -302,35 +305,25 @@ static class MenuController
 	private static void PerformMainMenuAction(int button)
 	{
 		switch (button) {
-			case MAIN_MENU_PLAY_BUTTON:
+		case MAIN_MENU_PLAY_BUTTON:
 			GameController.StartGame();
-				break;
-			case MAIN_MENU_SETUP_BUTTON:
+			break;
+		case MAIN_MENU_SETUP_BUTTON:
 			GameController.AddNewState(GameState.AlteringSettings);
-				break;
-			case MAIN_MENU_TOP_SCORES_BUTTON:
+			break;
+		case MAIN_MENU_TOP_SCORES_BUTTON:
 			GameController.AddNewState(GameState.ViewingHighScores);
-				break;
-			case MAIN_MENU_MUTE_BUTTON:
-				if (isMute == false)
-				{
-					Audio.StopMusic ();
-					isMute = true;
-					break;
-				}
-				else
-				{
-					SwinGame.PlayMusic(GameResources.GameMusic("Background"));
-					isMute = false;
-					break;
-				}
-			case MAIN_MENU_BGM_BUTTON:
+			break;
+		case MAIN_MENU_MUTE_BUTTON:
+			Mute();
+			break;
+		case MAIN_MENU_BGM_BUTTON:
 			GameController.AddNewState (GameState.BGMSettings);
-				break;
+			break;
 
-			case MAIN_MENU_QUIT_BUTTON:
+		case MAIN_MENU_QUIT_BUTTON:
 			GameController.EndCurrentState();
-				break;
+			break;
 		}
 	}
 
@@ -341,15 +334,15 @@ static class MenuController
 	private static void PerformSetupMenuAction(int button)
 	{
 		switch (button) {
-			case SETUP_MENU_EASY_BUTTON:
+		case SETUP_MENU_EASY_BUTTON:
 			GameController.SetDifficulty(AIOption.Easy);
-				break;
-			case SETUP_MENU_MEDIUM_BUTTON:
+			break;
+		case SETUP_MENU_MEDIUM_BUTTON:
 			GameController.SetDifficulty(AIOption.Medium);
-				break;
-			case SETUP_MENU_HARD_BUTTON:
+			break;
+		case SETUP_MENU_HARD_BUTTON:
 			GameController.SetDifficulty(AIOption.Hard);
-				break;
+			break;
 		}
 		//Always end state - handles exit button as well
 		GameController.EndCurrentState();
@@ -360,15 +353,18 @@ static class MenuController
 		switch (button) {
 		case BGM_MENU_1:
 			Audio.StopMusic ();
-			SwinGame.PlayMusic(GameResources.GameMusic("Background"));
+			SwinGame.PlayMusic (GameResources.GameMusic ("Background"));
+			bgmPlaying = 1;
 			break;
 		case BGM_MENU_2:
 			Audio.StopMusic ();
-			SwinGame.FadeMusicIn(GameResources.GameMusic("BGM1"),3000);			
+			SwinGame.FadeMusicIn (GameResources.GameMusic ("BGM1"), 3000);	
+			bgmPlaying = 2;
 			break;
 		case BGM_MENU_3:
 			Audio.StopMusic ();
-			SwinGame.FadeMusicIn(GameResources.GameMusic("BGM2"),3000);			
+			SwinGame.FadeMusicIn (GameResources.GameMusic ("BGM2"), 3000);	
+			bgmPlaying = 3;
 			break;
 		}
 		//Always end state - handles exit button as well
@@ -381,35 +377,56 @@ static class MenuController
 	private static void PerformGameMenuAction(int button)
 	{
 		switch (button) {
-			case GAME_MENU_RETURN_BUTTON:
+		case GAME_MENU_RETURN_BUTTON:
 			GameController.EndCurrentState();
-				break;
-			case GAME_MENU_SURRENDER_BUTTON:
+			break;
+		case GAME_MENU_SURRENDER_BUTTON:
 			GameController.EndCurrentState();
-				//end game menu
+			//end game menu
 			GameController.EndCurrentState();
-				//end game
+			//end game
+			break;
+		case GAME_MENU_MUTE_BUTTON:
+			Mute();
+			break;
+		case GAME_MENU_RESTART_BUTTON:
+			GameController.EndCurrentState();
+			//end game menu
+			GameController.EndCurrentState();
+			//end game
+			GameController.StartGame();
+			break;
+
+		case GAME_MENU_QUIT_BUTTON:
+			GameController.AddNewState(GameState.Quitting);
+			break;
+		}
+	}
+
+	private static void Mute(){
+		if (isMute == false)
+		{
+			Audio.CloseAudio ();
+			isMute = true;
+		}
+		else
+		{
+			Audio.OpenAudio ();
+			switch (bgmPlaying)
+			{
+			case 1:
+				SwinGame.PlayMusic (GameResources.GameMusic ("Background"));
+				isMute = false;
 				break;
-			case GAME_MENU_MUTE_BUTTON:
-				if (isMute == false)
-				{
-					Audio.StopMusic ();
-					isMute = true;
-					break;
-				}
-				else
-				{
-					SwinGame.PlayMusic(GameResources.GameMusic("Background"));
-					isMute = false;
-					break;
-				}
-			case GAME_MENU_RESTART_BUTTON:
-				GameController.StartGame();
-					break;
-				
-			case GAME_MENU_QUIT_BUTTON:
-				GameController.AddNewState(GameState.Quitting);
+			case 2:
+				SwinGame.FadeMusicIn (GameResources.GameMusic ("BGM1"), 3000);
+				isMute = false;
 				break;
+			case 3:
+				SwinGame.FadeMusicIn (GameResources.GameMusic ("BGM2"), 3000);
+				isMute = false;
+				break;
+			}
 		}
 	}
 }
