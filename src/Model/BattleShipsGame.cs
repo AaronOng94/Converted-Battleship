@@ -30,7 +30,7 @@ public class BattleShipsGame
 	/// </remarks>
 	public event AttackCompletedHandler AttackCompleted;
 
-	private Player[] _players = new Player[3];
+	private Player[] _players = new Player[4];
 
 	private int _playerIndex = 0;
 	/// <summary>

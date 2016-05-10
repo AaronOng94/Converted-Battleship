@@ -169,7 +169,9 @@ static class MenuController
 	{
 		//Clears the Screen to Black
 		//SwinGame.DrawText("Main Menu", Color.White, GameFont("ArialLarge"), 50, 50)
-
+		SwinGame.DrawText("Hotkeys", Color.DeepSkyBlue, GameResources.GameFont("Arial"), 15, 500);
+		SwinGame.DrawText("F1 - Toggle fullscreen", Color.DeepSkyBlue, GameResources.GameFont("Arial"), 15, 520);
+		SwinGame.DrawText("F2 - Take screenshot", Color.DeepSkyBlue, GameResources.GameFont("Arial"), 15, 540);
 		DrawButtons(MAIN_MENU);
 	}
 

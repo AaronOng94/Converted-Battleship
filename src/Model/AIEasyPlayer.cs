@@ -24,9 +24,9 @@ public class AIEasyPlayer : AIPlayer
 	}
 
 	private AIStates _CurrentState = AIStates.Searching;
-	int r, c;
 
 	private Stack<Location> _Targets = new Stack<Location>();
+
 	public AIEasyPlayer(BattleShipsGame controller) : base(controller)
 	{
 	}
@@ -97,9 +97,10 @@ public class AIEasyPlayer : AIPlayer
 	{
 		if (result.Value == ResultOfAttack.Hit) {
 			_CurrentState = AIStates.TargetingShip;
-			r = _Random.Next(0, EnemyGrid.Height);
-			c = _Random.Next(0, EnemyGrid.Width);
-			AddTarget(r, c);
+			AddTarget(row - 1, col - 1);
+			AddTarget(row + 1, col + 1);
+			AddTarget(row + 1, col - 1);
+			AddTarget(row - 1, col + 1);
 		} else if (result.Value == ResultOfAttack.ShotAlready) {
 			throw new ApplicationException("Error in AI");
 		}
